@@ -79,6 +79,7 @@ public class GenLinkedList<T> {
 		}
 		else
 		{
+			
 			//Get the node before the end
 			Node<T> n = front;
 			
@@ -177,7 +178,39 @@ public class GenLinkedList<T> {
 	
 	public void removeMatching(T item)
 	{
+		if(length == 0)
+			return;
 		
+		//find the first element that does not match
+		while( length > 0 && front.get() == item)
+		{
+			front = front.getNext();
+			length--;
+		}
+		
+		if(length > 0)
+		{
+			Node<T> n = front;
+			
+			while(n.getNext() != null)
+			{
+				if(n.getNext().get() == item)
+				{
+					n.setNext(n.getNext().getNext());
+					length--;
+				}
+				else
+				{
+					n = n.getNext();
+				}
+			}
+			
+			end = n;
+		}
+		else
+		{
+			front = end = null;
+		}
 	}
 	
 	public void erase(int pos, int num) throws Exception
@@ -208,10 +241,26 @@ public class GenLinkedList<T> {
 		}
 		else //the front is not changing
 		{
-			Node<T> before;
+			//we need to move the link from node pos - 1 to the node at pos + num
+			Node<T> before = front;
 			Node<T> after;
 			
-			//NEEDS IMPLEMENTATION
+			for(int i = 0; i < pos - 1; i++)
+			{
+				before = before.getNext();
+			}
+			after = before.getNext();
+			for(int i = 0; i < num; i++)
+			{
+				after = after.getNext();
+			}
+			
+			before.setNext(after);
+			if(after == null)
+			{
+				end = before;
+			}
+			length -= num;
 		}
 	}
 	
@@ -249,7 +298,7 @@ public class GenLinkedList<T> {
 	}
 	
 	//Methods not part of assignment requirements
-	public String ToString()
+	public String toString()
 	{
 		
 		if(length == 0)
@@ -291,21 +340,43 @@ public class GenLinkedList<T> {
 		sl.addEnd("three");
 		sl.addEnd("four");
 		sl.addEnd("five");
-		System.out.println(sl.ToString());
+		System.out.println(sl.toString());
 		sl.addFront("bob");
 		sl.addFront("joe");
 		sl.addFront("bill");
-		System.out.println(sl.ToString());
+		System.out.println(sl.toString());
 		sl.removeFront();
 		sl.removeEnd();
-		System.out.println(sl.ToString());
+		System.out.println(sl.toString());
 		sl.set(5, "FOUR");
-		System.out.println(sl.ToString());
+		System.out.println(sl.toString());
 		System.out.println(sl.get(2));
 		sl.swap(0, 1);
 		sl.swap(3, 2);
 		sl.swap(4, 4);
-		System.out.println(sl.ToString());
+		System.out.println(sl.toString());
+		
+		GenLinkedList<Integer> il = new GenLinkedList<Integer>();
+		il.addEnd(0);
+		il.addEnd(1);
+		il.addEnd(2);
+		il.addEnd(3);
+		il.addEnd(4);
+		System.out.println(il.toString());
+		
+		il.erase(1, 2);
+		System.out.println(il);
+		il.addEnd(5);
+		il.addEnd(6);
+		System.out.println(il);
+		il.erase(2, 3);
+		System.out.println(il);
+		il.addEnd(7);
+		System.out.println(il);
+		il.erase(0, 1);
+		System.out.println(il);
+		il.erase(0, 2);
+		System.out.println(il);
 		
 	}
 }
