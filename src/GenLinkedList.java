@@ -11,43 +11,45 @@ import java.lang.StringBuilder;
 public class GenLinkedList<T> {
 	
 	private int length = 0;
-	Node<T> front;
-	Node<T> end;
+	Node front;
+	Node back;
 	
+	//runs in constant time
 	public void addFront(T item)
 	{
 		if(length == 0)
 		{
-			front = new Node<T>(item);
-			end = front;
+			front = new Node(item);
+			back = front;
 		}
 		else
 		{
-			Node<T> temp = new Node<T>(item);
-			temp.setNext(front);
+			Node temp = new Node(item, front);
 			front = temp;
 		}
 		
 		length++;
 	}
 	
+	//runs in constant time
 	public void addEnd(T item)
 	{
 		if(length == 0)
 		{
-			front = new Node<T>(item);
-			end = front;
+			front = new Node(item);
+			back = front;
 		}
 		else
 		{
-			Node<T> temp = new Node<T>(item);
-			end.setNext(temp);
-			end = temp;
+			Node temp = new Node(item);
+			back.setNext(temp);
+			back = temp;
 		}
 		
 		length++;
 	}
 	
+	//runs in constant time
 	public void removeFront() throws Exception
 	{
 		if(length <= 0)
@@ -56,7 +58,7 @@ public class GenLinkedList<T> {
 		}
 		else if(length == 1)
 		{
-			front = end = null;
+			front = back = null;
 			length--;
 		}
 		else
@@ -66,6 +68,7 @@ public class GenLinkedList<T> {
 		}
 	}
 	
+	//runs in O(N)
 	public void removeEnd() throws Exception
 	{
 		if(length == 0)
@@ -74,21 +77,21 @@ public class GenLinkedList<T> {
 		}
 		else if(length == 1)
 		{
-			front = end = null;
+			front = back = null;
 			length--;
 		}
 		else
 		{
 			
-			//Get the node before the end
-			Node<T> n = front;
+			//Get the node before the back
+			Node n = front;
 			
 			for(int i = 0; i < length - 2; i++)
 			{
 				n = n.getNext();
 			}
 			
-			end = n;
+			back = n;
 			n.setNext(null);
 			length--;
 		}
@@ -102,7 +105,7 @@ public class GenLinkedList<T> {
 		}
 		else
 		{
-			Node<T> n = front;
+			Node n = front;
 			
 			for(int i = 0; i < pos; i++)
 			{
@@ -121,7 +124,7 @@ public class GenLinkedList<T> {
 		}
 		else
 		{
-			Node<T> n = front;
+			Node n = front;
 			
 			for(int i = 0; i < pos; i++) {
 				n = n.getNext();
@@ -131,6 +134,8 @@ public class GenLinkedList<T> {
 		}
 	}
 	
+	
+	//Swap does not move any of the nodes, but only moves the values stored in them.
 	public void swap(int pos1, int pos2) throws Exception
 	{
 		if(pos1 >= length || pos2 >= length)
@@ -146,9 +151,9 @@ public class GenLinkedList<T> {
 		}
 		
 		//find the two nodes
-		Node<T> n = front;
-		Node<T> swap1;
-		Node<T> swap2;
+		Node n = front;
+		Node swap1;
+		Node swap2;
 		
 		for(int i = 0; i < pos1; i++)
 		{
@@ -171,8 +176,32 @@ public class GenLinkedList<T> {
 		
 	}
 	
-	public void shift(int amt)
+	public void shift(int amt) throws Exception//cyclic!
 	{
+		if(Math.abs(amt) >= length)
+		{
+			throw new Exception("Can't shift larger than the list!");
+		}
+		
+		back.setNext(front); //this makes the linked list cycle
+		//linked list can easily shift forward, but have trouble going backward.
+		//so, change backwards cycles to their forward counterpart
+		if(amt < 0)
+		{
+			amt = length + amt;
+		}
+		
+		
+		//move front and back
+		for(int i = 0; i < amt; i++)
+		{
+			front = front.getNext();
+			back = back.getNext();
+		}
+		
+		//unlink the back so that it is no longer cyclic
+		back.setNext(null);
+		
 		
 	}
 	
@@ -190,7 +219,7 @@ public class GenLinkedList<T> {
 		
 		if(length > 0)
 		{
-			Node<T> n = front;
+			Node n = front;
 			
 			while(n.getNext() != null)
 			{
@@ -205,11 +234,11 @@ public class GenLinkedList<T> {
 				}
 			}
 			
-			end = n;
+			back = n;
 		}
 		else
 		{
-			front = end = null;
+			front = back = null;
 		}
 	}
 	
@@ -225,7 +254,7 @@ public class GenLinkedList<T> {
 		}
 		else if(pos == 0) //if pos == 0, the front must change
 		{
-			Node<T> n = front;
+			Node n = front;
 			
 			for(int i = 0; i < num; i++)
 			{
@@ -236,14 +265,14 @@ public class GenLinkedList<T> {
 			length -= num;
 			if(length == 0)
 			{
-				end = front;
+				back = front;
 			}
 		}
 		else //the front is not changing
 		{
 			//we need to move the link from node pos - 1 to the node at pos + num
-			Node<T> before = front;
-			Node<T> after;
+			Node before = front;
+			Node after;
 			
 			for(int i = 0; i < pos - 1; i++)
 			{
@@ -258,7 +287,7 @@ public class GenLinkedList<T> {
 			before.setNext(after);
 			if(after == null)
 			{
-				end = before;
+				back = before;
 			}
 			length -= num;
 		}
@@ -271,16 +300,16 @@ public class GenLinkedList<T> {
 			throw new Exception("Index out of bounds.");
 		}
 
-		Node<T> begin = front;
+		Node begin = front;
 		for(int i = 0; i < pos; i++)
 		{
 			begin = begin.getNext();
 		}
-		Node<T> after = begin.getNext();
+		Node after = begin.getNext();
 		
 		for(int i = 0; i < list.size(); i++)
 		{
-			Node<T> temp = new Node<T>(list.get(i));
+			Node temp = new Node(list.get(i));
 			begin.setNext(temp);
 			begin = begin.getNext();
 		}
@@ -291,7 +320,7 @@ public class GenLinkedList<T> {
 		}
 		else
 		{
-			end = begin;
+			back = begin;
 		}
 		
 		length += list.size();
@@ -310,7 +339,7 @@ public class GenLinkedList<T> {
 			StringBuilder sb = new StringBuilder();
 			sb.append("[ ");
 			
-			Node<T> n = front;
+			Node n = front;
 			
 			for(int i = 0; i < length; i++)
 			{
@@ -328,34 +357,41 @@ public class GenLinkedList<T> {
 	{
 		length = 0;
 		front = null;
-		end = null;
+		back = null;
 	}
 	
 	public static void main(String[] args) throws Exception
 	{
-		System.out.println("Testing GenLinkedList");
-		GenLinkedList<String> sl = new GenLinkedList();
+		System.out.println("*****Testing GenLinkedList*****");
+		GenLinkedList<String> sl = new GenLinkedList<String>();
+		System.out.println("Testing addEnd()");
 		sl.addEnd("one");
 		sl.addEnd("two");
 		sl.addEnd("three");
 		sl.addEnd("four");
 		sl.addEnd("five");
 		System.out.println(sl.toString());
+		System.out.println("Testing addFront()");
 		sl.addFront("bob");
 		sl.addFront("joe");
 		sl.addFront("bill");
 		System.out.println(sl.toString());
+		System.out.println("Testing removeFront and removeEnd");
 		sl.removeFront();
 		sl.removeEnd();
 		System.out.println(sl.toString());
+		System.out.println("Testing set");
 		sl.set(5, "FOUR");
 		System.out.println(sl.toString());
+		System.out.println("testing get");
 		System.out.println(sl.get(2));
+		System.out.println("Testing swap");
 		sl.swap(0, 1);
 		sl.swap(3, 2);
 		sl.swap(4, 4);
 		System.out.println(sl.toString());
 		
+		System.out.println("*****INTEGER LINKED LIST*****");
 		GenLinkedList<Integer> il = new GenLinkedList<Integer>();
 		il.addEnd(0);
 		il.addEnd(1);
@@ -363,7 +399,7 @@ public class GenLinkedList<T> {
 		il.addEnd(3);
 		il.addEnd(4);
 		System.out.println(il.toString());
-		
+		System.out.println("Testing erase");
 		il.erase(1, 2);
 		System.out.println(il);
 		il.addEnd(5);
@@ -378,7 +414,46 @@ public class GenLinkedList<T> {
 		il.erase(0, 2);
 		System.out.println(il);
 		
+		System.out.println("Done testing");
 	}
+	
+
+	private class Node {
+		private T value;
+		private Node next;
+		
+		public Node(T val)
+		{
+			value = val;
+		}
+		
+		public Node(T val, Node p)
+		{
+			value = val;
+			next = p;
+		}
+		
+		public T get()
+		{
+			return value;
+		}
+		
+		public void set(T item)
+		{
+			value = item;
+		}
+		
+		public Node getNext()
+		{
+			return next;
+		}
+		
+		public void setNext(Node node)
+		{
+			next = node;
+		}
+	}
+
 }
 
 
